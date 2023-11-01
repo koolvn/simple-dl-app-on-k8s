@@ -1,0 +1,8 @@
+name: "resnet18"
+backend: "onnxruntime"
+max_batch_size : 128
+
+dynamic_batching {
+    max_queue_delay_microseconds: 500
+    #preferred_batch_size: 8
+}
