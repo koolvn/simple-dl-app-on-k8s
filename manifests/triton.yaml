@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triton-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: triton
+  template:
+    metadata:
+      labels:
+        app: triton
+    spec:
+      volumes:
+        - name: models
+          nfs:
+            server: 192.168.99.99
+            path: /srv/nfs/storage/model-registry
+            readOnly: false
+      containers:
+        - name: triton
+          image: nvcr.io/nvidia/tritonserver:23.07-py3
+          resources:
+            limits:
+              nvidia.com/gpu.shared: "1"
+          ports:
+            - containerPort: 8000
+            - containerPort: 8001
+            - containerPort: 8002
+          volumeMounts:
+            - mountPath: /models
+              name: models
+          command: [ "/bin/sh", "-c" ]
+          args: [ "/opt/tritonserver/bin/tritonserver --model-repository=/models 
+                  --allow-gpu-metrics=false --strict-model-config=false" ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: triton-inference-server
+spec:
+  selector:
+    app: triton
+  ports:
+    - protocol: TCP
+      port: 8000
+      name: http
+      targetPort: 8000
+    - protocol: TCP
+      port: 8001
+      name: grpc
+      targetPort: 8001
+    - protocol: TCP
+      port: 8002
+      name: metrics
+      targetPort: 8002
