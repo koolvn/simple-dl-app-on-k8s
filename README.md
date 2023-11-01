@@ -1,1 +1,1 @@
-# simple-dl-app-on-k8s
+# Simple DL application to deploy in K8s
