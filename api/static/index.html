@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Classification</title>
+    <style>
+        /* Add some basic styling to the page */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        label {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px; /* Added font-size */
+        }
+
+        button[type="submit"] {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 16px; /* Added font-size */
+        }
+
+        button[type="submit"]:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+
+        #result {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #image-preview {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #image-preview img {
+            max-width: 80vw;
+            max-height: 70vh;
+        }
+    </style>
+</head>
+<body>
+<h1>Image Classification</h1>
+<form id="upload-form" enctype="multipart/form-data">
+    <label for="image-input">Choose Image</label>
+    <input type="file" id="image-input" name="file" accept="image/*" onchange="enableClassifyButton()">
+    <button type="submit" id="classify-button" disabled>Classify</button>
+</form>
+<div id="result"></div>
+<div id="image-preview"></div>
+
+<script>
+    // Add JavaScript code to handle the form submission, display the result, and show the image preview
+    const form = document.getElementById('upload-form');
+    const resultDiv = document.getElementById('result');
+    const imagePreviewDiv = document.getElementById('image-preview');
+    const classifyButton = document.getElementById('classify-button');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fileInput = document.getElementById('image-input');
+        const file = fileInput.files[0];
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/uploadfile/', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            resultDiv.innerText = `Classification: ${data.class_name}, Probability: ${data.probability}`;
+        } catch (error) {
+            console.error(error);
+            resultDiv.innerText = 'Error occurred during classification';
+        }
+    });
+
+    // Show image preview when a file is selected
+    const imageInput = document.getElementById('image-input');
+    imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const imagePreview = document.createElement('img');
+            imagePreview.src = e.target.result;
+            imagePreviewDiv.innerHTML = '';
+            imagePreviewDiv.appendChild(imagePreview);
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    // Enable the "Classify" button when an image is selected
+    function enableClassifyButton() {
+        classifyButton.disabled = false;
+    }
+</script>
+</body>
+</html>
