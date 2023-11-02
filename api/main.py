@@ -69,18 +69,15 @@ def resnet_inference(img: np.ndarray, client: tritonclient.http, model_name: str
     return class_name, proba
 
 
-@app.get("/")
+@app.get("/clf-app/")
 async def classify():
     return FileResponse("static/index.html")
 
 
-@app.post("/uploadfile/")
+@app.post("/clf-app/uploadfile/")
 async def create_upload_file(file: UploadFile = File(...)):
     image = Image.open(io.BytesIO(await file.read()))
     image = np.array(image)
     cls_name, proba = resnet_inference(image, triton_client, MODEL_NAME)
-    response_data = {
-        "class_name": cls_name,
-        "probability": f"{proba:.1f}"
-    }
+    response_data = {"class_name": cls_name, "probability": f"{proba:.1f}"}
     return Response(json.dumps(response_data), media_type="application/json")
