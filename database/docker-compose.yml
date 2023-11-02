@@ -12,4 +12,3 @@ services:
       - ./data/postgresql:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-      #      - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://postgres:postgres@database:5432/simple
