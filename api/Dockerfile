@@ -15,6 +15,6 @@ COPY . .
 
 # Expose the port for the FastAPI app
 EXPOSE 80
-
+ENV TZ="Europe/Moscow"
 # Set the entrypoint command to start the FastAPI app
 ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
