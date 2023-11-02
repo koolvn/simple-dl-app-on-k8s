@@ -3,7 +3,6 @@
 <head>
     <title>Image Classification</title>
     <style>
-        /* Add some basic styling to the page */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -32,7 +31,7 @@
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px; /* Added font-size */
+            font-size: 16px;
         }
 
         button[type="submit"] {
@@ -43,7 +42,7 @@
             border-radius: 5px;
             cursor: pointer;
             margin-left: 10px;
-            font-size: 16px; /* Added font-size */
+            font-size: 16px;
         }
 
         button[type="submit"]:disabled {
@@ -93,7 +92,7 @@
         formData.append('file', file);
 
         try {
-            const response = await fetch('/uploadfile/', {
+            const response = await fetch('/clf-app/uploadfile/', {
                 method: 'POST',
                 body: formData
             });
@@ -101,7 +100,7 @@
             resultDiv.innerText = `Classification: ${data.class_name}, Probability: ${data.probability}`;
         } catch (error) {
             console.error(error);
-            resultDiv.innerText = 'Error occurred during classification';
+            resultDiv.innerText = `Error occurred during classification:\n${error}`;
         }
     });
 
