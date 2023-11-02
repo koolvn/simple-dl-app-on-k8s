@@ -1,9 +1,34 @@
+import datetime
+import hashlib
 from typing import Any
 
 import cv2
 import numpy as np
 import tritonclient
+from PIL import Image
+from sqlalchemy import Column, String, Float, DateTime
+from sqlalchemy.orm import declarative_base
 from tritonclient.http import InferInput
+
+Base = declarative_base()
+
+
+# Define a model for the table
+class Results(Base):
+    __tablename__ = "results"
+
+    datetime = Column(DateTime, default=datetime.datetime.now, primary_key=True)
+    user_ip = Column(String)
+    image_hash = Column(String)
+    inference_duration_sec = Column(Float)
+    predicted_class = Column(String)
+    probability = Column(String)
+
+
+def generate_image_hash(image: Image.Image) -> str:
+    hsh = hashlib.md5(image.tobytes())
+    hsh = hsh.hexdigest()
+    return hsh
 
 
 def parse_model_metadata(
