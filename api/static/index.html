@@ -92,6 +92,8 @@
         formData.append('file', file);
 
         try {
+            // Disable the "Classify" button after the user clicks it
+            classifyButton.disabled = true;
             const response = await fetch('/clf-app/uploadfile/', {
                 method: 'POST',
                 body: formData
@@ -101,6 +103,7 @@
         } catch (error) {
             console.error(error);
             resultDiv.innerText = `Error occurred during classification:\n${error}`;
+            classifyButton.disabled = false;
         }
     });
 
@@ -118,12 +121,10 @@
         };
 
         reader.readAsDataURL(file);
-    });
 
-    // Enable the "Classify" button when an image is selected
-    function enableClassifyButton() {
+        // Enable the "Classify" button when an image is selected
         classifyButton.disabled = false;
-    }
+    });
 </script>
 </body>
 </html>
