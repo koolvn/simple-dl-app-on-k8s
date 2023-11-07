@@ -1,6 +1,7 @@
 import io
 import json
 import logging
+import os
 import sys
 import time
 
@@ -15,9 +16,18 @@ from sqlalchemy.orm import sessionmaker
 
 from utils import Results, resnet_inference, generate_image_hash
 
-MODEL_NAME = "resnet18"
-POSTGRES_CONN_STRING = "postgresql://postgres:postgres@192.168.55.105:5432/simple"
-LOG_LEVEL = logging.DEBUG
+MODEL_NAME = os.environ.get("MODEL_NAME")
+POSTGRES_CONN_STRING = os.environ.get("POSTGRES_CONN_STRING")
+TRITON_URL = os.environ.get("TRITON_URL", "triton-inference-server")
+TRITON_PORT = os.environ.get("TRITON_PORT", "8000")
+log_levels = {
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warning": logging.WARNING,
+    "error": logging.ERROR,
+    "critical": logging.CRITICAL,
+}
+LOG_LEVEL = log_levels.get(os.environ.get("LOG_LEVEL", "info").lower())
 root = logging.getLogger()
 root.setLevel(LOG_LEVEL)
 
@@ -32,7 +42,7 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 logging.info("Starting triton client")
-triton_client = httpclient.InferenceServerClient("triton-inference-server:8000")
+triton_client = httpclient.InferenceServerClient(TRITON_URL, concurrency=10)
 logging.info(f"{triton_client.get_model_repository_index() = }")
 
 with open("imagenet_classes.txt", "r") as f:
