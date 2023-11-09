@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: triton-deployment
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '8002'
 spec:
   replicas: 1
   selector:
@@ -33,7 +36,27 @@ spec:
               name: models
           command: [ "/bin/sh", "-c" ]
           args: [ "/opt/tritonserver/bin/tritonserver --model-repository=/models 
-                  --allow-gpu-metrics=false --strict-model-config=false" ]
+                  --allow-metrics=true --strict-model-config=false" ]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: triton-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: triton-deployment
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Pods
+      pods:
+        metric:
+          name: nv_gpu_utilization
+        target:
+          type: AverageValue
+          averageValue: "20m"  # Example threshold, adjust as needed (20m ~= 2% of utilization)
 ---
 apiVersion: v1
 kind: Service
