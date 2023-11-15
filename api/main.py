@@ -80,8 +80,7 @@ async def create_upload_file(request: Request, file: UploadFile = File(...)):
         predicted_class=response_data["class_name"],
         probability=response_data["probability"],
     )
-    session = Session()
-    session.add(db_result)
-    session.commit()
-    session.close()
+    with Session() as session:
+        session.add(db_result)
+        session.commit()
     return Response(json.dumps(response_data), media_type="application/json")
